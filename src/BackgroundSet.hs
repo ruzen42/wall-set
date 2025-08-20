@@ -1,4 +1,4 @@
-module BackgroundSet ( backgroundSet ) where
+module BackgroundSet ( backgroundSet, getFilesInDirectory ) where
 
 import System.Process (callCommand)
 import System.Random (randomRIO)

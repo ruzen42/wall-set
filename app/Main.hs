@@ -1,38 +1,52 @@
-module Main where
+module Main ( main ) where
 
-import BackgroundSet (backgroundSet)
+import BackgroundSet (backgroundSet, getFilesInDirectory)
 import Options.Applicative
 import System.Exit (exitFailure)
-import Control.Monad (when)
+import Control.Monad (when, mapM_)
+
+data Command
+  = Set FilePath  
+  | List FilePath
+  deriving (Show)
 
 data Options = Options
-  { optPath :: FilePath  
-  , optVerbose :: Bool  
+  { optCommand :: Command
+  , optVerbose :: Bool
   } deriving (Show)
+
+setParser :: Parser Command
+setParser = Set <$> argument str (metavar "PATH" <> help "Path to file or directory")
+
+listParser :: Parser Command
+listParser = List <$> argument str (metavar "PATH" <> help "Path to directory to list")
+
+commandParser :: Parser Command
+commandParser = subparser
+  ( command "set" (info setParser (progDesc "Set background, background-set set image.png"))
+  <> command "list" (info listParser (progDesc "List available backgrounds, background-set list images"))
+  )
 
 optionsParser :: Parser Options
 optionsParser = Options
-  <$> argument str (metavar "PATH" <> help "Path to file or directory with backgrounds")
+  <$> commandParser
   <*> switch (long "verbose" <> short 'v' <> help "Enable verbose output")
-
-programInfo :: ParserInfo Options
-programInfo = info (optionsParser <**> helper)
-  ( fullDesc
-  <> progDesc "Set random background from directory or specific file"
-  <> header "background-set - utility for setting desktop backgrounds" )
 
 main :: IO ()
 main = do
-  opts <- execParser programInfo
-  let path = optPath opts
-      verbose = optVerbose opts
+  opts <- execParser (info (optionsParser <**> helper) fullDesc)
   
-  when verbose $ putStrLn $ "Processing path: " ++ path
-  
-  result <- backgroundSet path
-  
-  case result of
-    Right () -> when verbose $ putStrLn "Background set successfully!"
-    Left err -> do
-      putStrLn $ "Error: " ++ err
-      exitFailure
+  case optCommand opts of
+    Set path -> do
+      when (optVerbose opts) $ putStrLn $ "Setting background from: " ++ path
+      result <- backgroundSet path
+      case result of
+        Right () -> when (optVerbose opts) $ putStrLn "Background set successfully!"
+        Left err -> putStrLn ("Error: " ++ err) >> exitFailure
+    
+    List path -> do
+      when (optVerbose opts) $ putStrLn $ "Listing backgrounds in: " ++ path
+      maybeFiles <- getFilesInDirectory path
+      case maybeFiles of
+        Nothing    -> putStrLn "No files found or doesn't exist"
+        Just files -> mapM_ putStrLn files
