@@ -16,10 +16,10 @@ backgroundSet filePath = do
         Nothing -> return $ Left $ "Directory is empty: " ++ filePath
         Just files -> do
           background <- selectRandom files
-          callCommand $ "/usr/bin/feh --bg-center " ++ background 
+          callCommand $ "/usr/bin/feh --bg-fill " ++ background 
           return $ Right ()
     Just "File" -> do
-      callCommand $ "/usr/bin/feh --bg-center " ++ filePath
+      callCommand $ "/usr/bin/feh --bg-fill " ++ filePath
       return $ Right ()
     Nothing -> return $ Left $ "Path does not exist: " ++ filePath
 
