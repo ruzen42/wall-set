@@ -13,13 +13,13 @@
 
         haskellPackages = pkgs.haskellPackages; 
 
-        hakyllProject = haskellPackages.callCabal2nix "background-set" ./. {};
+        proj = haskellPackages.callCabal2nix "background-set" ./. {};
 
       in {
-        packages.default = hakyllProject;
+        packages.default = proj;
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ hakyllProject.env ];
+          inputsFrom = [ proj.env ];
           
           buildInputs = with haskellPackages; [
             cabal-install

@@ -1,4 +1,4 @@
-module BackgroundSet ( backgroundSet, getFilesInDirectory ) where
+module BackgroundSet ( backgroundSet, getFilesInDirectory, SessionType(..), getSessionType ) where
 
 import System.Process (callCommand)
 import System.Random (randomRIO)
@@ -6,9 +6,19 @@ import System.Directory (doesDirectoryExist, doesFileExist, listDirectory)
 import System.FilePath.Posix ((</>))
 import Control.Monad (filterM)
 
-backgroundSet :: FilePath -> IO (Either String ())
-backgroundSet filePath = do 
+data SessionType 
+  = X11 
+  | Wayland 
+  deriving (Show, Eq)
+
+backgroundSet :: SessionType -> FilePath -> IO (Either String ())
+backgroundSet sType filePath = do 
   maybeType <- getPathType filePath
+  let setBackend = \type file-> do
+    case type of
+      Wayland -> callCommand $ "swaybg -i -m fill " ++ file
+      X11     -> callCommand $ "feh --bg-fill" ++ file
+
   case maybeType of
     Just "Directory" -> do
       maybeFiles <- getFilesInDirectory filePath
@@ -16,12 +26,20 @@ backgroundSet filePath = do
         Nothing -> return $ Left $ "Directory is empty: " ++ filePath
         Just files -> do
           background <- selectRandom files
-          callCommand $ "/usr/bin/feh --bg-fill " ++ background 
+          setBackend sType background
           return $ Right ()
     Just "File" -> do
-      callCommand $ "/usr/bin/feh --bg-fill " ++ filePath
+      setBackend sType filepath
       return $ Right ()
     Nothing -> return $ Left $ "Path does not exist: " ++ filePath
+
+getSessionType :: IO SessionType 
+getSessionType = do
+  type <- lookupEnv "XDG_SESSION_TYPE"
+  case type of
+    Just "wayland" -> Wayland 
+    _              -> X11
+
 
 getPathType :: FilePath -> IO (Maybe String)
 getPathType path = do
