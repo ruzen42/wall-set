@@ -1,6 +1,6 @@
-name:                backgroundSet
-version:             0.1.0.0
-github:              "ruzen42/backgroundSet"
+name:                wall-set
+version:             1.0.0.0
+github:              "ruzen42/wall-set"
 license:             BSD-3-Clause
 author:              "Jaroslav Mihajlenko"
 maintainer:          "malledeferlive@gmail.com"
@@ -12,7 +12,7 @@ extra-source-files:
 
 category:            System 
 
-description:         Please see the README on GitHub at <https://github.com/ruzen42/backgroundSet#readme>
+description:         Please see the README on GitHub at <https://github.com/ruzen42/wall-set#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -45,4 +45,4 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - backgroundSet
+    - wall-set
