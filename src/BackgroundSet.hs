@@ -19,7 +19,7 @@ backgroundSet :: SessionType -> FilePath -> IO (Either String ())
 backgroundSet sType filePath = do 
   maybeType <- getPathType filePath
   let setBackend = \s file -> case s of
-        Wayland -> callCommand $ "swaybg -i -m fill " ++ file
+        Wayland -> callCommand $ "swaybg -i " ++ file ++ " -m fill " 
         X11     -> callCommand $ "feh --bg-fill" ++ file
 
   case maybeType of

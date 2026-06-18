@@ -2,7 +2,7 @@
   description = "cli wallpaper manager";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -13,7 +13,7 @@
 
         haskellPackages = pkgs.haskellPackages; 
 
-        proj = haskellPackages.callCabal2nix "background-set" ./. {};
+        proj = haskellPackages.callPackage ./default.nix {};      
 
       in {
         packages.default = proj;
